@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>502 - 서버 오류</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6fffa 100%);
+            color: #2d3748;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 120px;
+            background: linear-gradient(135deg, #0694a2 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            line-height: 1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        p {
+            font-size: 20px;
+            color: #4a5568;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-button {
+            background: #f8fafc;
+            color: #0694a2;
+            border: 2px solid #0694a2;
+        }
+
+        .home-button {
+            background: #0694a2;
+            color: white;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(6, 148, 162, 0.2);
+        }
+
+        .back-button:hover {
+            background: #0694a2;
+            color: white;
+        }
+
+        .home-button:hover {
+            background: #059669;
+        }
+
+        .refresh-button {
+            background: #f8fafc;
+            color: #059669;
+            border: 2px solid #059669;
+        }
+
+        .refresh-button:hover {
+            background: #059669;
+            color: white;
+        }
+
+        /* 서버 아이콘 관련 새로운 스타일 */
+        .server-rack {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .server-unit {
+            width: 100%;
+            height: 20px;
+            background: #0694a2;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            position: relative;
+            animation: serverPulse 2s infinite;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .server-unit::before {
+            content: "";
+            position: absolute;
+            right: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: blinkLight 1s infinite;
+        }
+
+        .server-unit::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            width: 30px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .server-unit:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .server-unit:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .server-unit:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes serverPulse {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes blinkLight {
+            0%, 100% { opacity: 1; background: #ff4444; }
+            50% { opacity: 0.5; background: #ff8888; }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 80px;
+            }
+            
+            p {
+                font-size: 16px;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .server-rack {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        .background-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(6, 148, 162, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            animation: moveShape 20s linear infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+        }
+
+        .shape:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes moveShape {
+            0% { transform: rotate(0deg) translate(50px) rotate(0deg); }
+            100% { transform: rotate(360deg) translate(50px) rotate(-360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <div class="container">
+        <div class="server-rack">
+            <div class="server-unit"></div>
+            <div class="server-unit"></div>
+            <div class="server-unit"></div>
+            <div class="server-unit"></div>
+        </div>
+        <h1>502</h1>
+        <p>죄송합니다. 일시적인 서버 오류가 발생했습니다.<br>잠시 후 다시 시도해 주세요.</p>
+        <div class="buttons">
+            <a href="javascript:history.back()" class="button back-button">뒤로 가기</a>
+            <a href="javascript:window.location.reload()" class="button refresh-button">새로고침</a>
+            <a href="/" class="button home-button">홈으로 가기</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>클릭왕 로그인</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding-top: 80px;
+      padding-bottom: 120px;
+    }
+    .ad-container-top {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      padding: 0.3rem 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .ad-container-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      padding: 0.3rem 0;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 3rem;
+      color: #333;
+    }
+    h1 span {
+      color: #4a6cff;
+    }
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      max-width: 600px;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .cursor-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin-bottom: 2rem;
+    }
+    .cursor-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+    }
+    .cursor-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: #4a6cff;
+    }
+    .click-animation {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background-color: rgba(74, 108, 255, 0.2);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .clicking .cursor-icon {
+      transform: translate(-50%, -50%) scale(0.9);
+      transition: transform 0.1s;
+    }
+    .click-ripple {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background-color: rgba(74, 108, 255, 0.3);
+      border-radius: 50%;
+      animation: ripple 1.2s ease-out;
+      pointer-events: none;
+    }
+    .click-number {
+      position: absolute;
+      color: #4a6cff;
+      font-weight: bold;
+      font-size: 1.5rem;
+      pointer-events: none;
+      animation: floating 1s ease-out;
+    }
+    .btn-login {
+      background-color: #4a6cff;
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin-top: 2rem;
+    }
+    .btn-login:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(74, 108, 255, 0.3);
+    }
+    .click-counter {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4a6cff;
+      margin-top: 1rem;
+    }
+    @keyframes ripple {
+      0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+      }
+      100% {
+        width: 150px;
+        height: 150px;
+        opacity: 0;
+      }
+    }
+    @keyframes floating {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50px);
+      }
+    }
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding-top: 70px;
+        padding-bottom: 110px;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .cursor-container {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 1rem;
+      }
+      .btn-login {
+        margin-top: 1rem;
+      }
+      .click-counter {
+        margin-top: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 광고 (고정) -->
+  <!-- <div class="ad-container-top">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-ai5ankXFQS2SvQNf"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 메인 로그인 컨텐츠 -->
+  <div class="main-content">
+    <h1><span>클릭</span>왕</h1>
+    <p class="subtitle">클릭하고 1등에 도전하세요!</p>
+    
+    <div class="cursor-container" id="cursorContainer">
+      <div class="cursor-icon" id="cursorIcon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+          <path d="M0 55.2V426c0 12.2 9.9 22 22 22c6.3 0 12.4-2.7 16.6-7.5L121.2 346l58.1 116.3c7.9 15.8 27.1 22.2 42.9 14.3s22.2-27.1 14.3-42.9L179.8 320H297.9c12.2 0 22.1-9.9 22.1-22.1c0-6.3-2.7-12.3-7.4-16.5L38.6 37.9C34.3 34.1 28.9 32 23.2 32C10.4 32 0 42.4 0 55.2z"/>
+        </svg>
+      </div>
+      <div class="click-animation" id="clickAnimation"></div>
+    </div>
+    
+    <div class="click-counter">
+      <span id="clickCount">0</span>
+    </div>
+    
+    <button class="btn-login" id="loginBtn">로그인</button>
+  </div>
+  
+  <!-- 하단 광고 (고정) -->
+  <!-- <div class="ad-container-bottom">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-10v3dFp7XcCQi4bJ"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 파티클 배경 -->
+  <div class="particles"></div>
+
+  <script>
+    const cursorContainer = document.getElementById("cursorContainer");
+    const cursorIcon = document.getElementById("cursorIcon");
+    const clickCounter = document.getElementById("clickCount");
+    const loginBtn = document.getElementById("loginBtn");
+    const particles = document.querySelector(".particles");
+    
+    let clickCount = 0;
+    let isAutoClicking = false;
+    
+    function startAutoClick() {
+      if (isAutoClicking) return;
+      isAutoClicking = true;
+      setInterval(() => {
+        simulateClick();
+      }, 2000);
+      setTimeout(simulateClick, 500);
+    }
+    
+    function simulateClick() {
+      cursorIcon.classList.add("clicking");
+      createRipple();
+      clickCount++;
+      clickCounter.textContent = clickCount;
+      createClickNumber("+1");
+      setTimeout(() => {
+        cursorIcon.classList.remove("clicking");
+      }, 150);
+    }
+    
+    function createRipple() {
+      const ripple = document.createElement("div");
+      ripple.className = "click-ripple";
+      cursorContainer.appendChild(ripple);
+      setTimeout(() => {
+        ripple.remove();
+      }, 1200);
+    }
+    
+    function createClickNumber(text) {
+      const clickNumber = document.createElement("div");
+      clickNumber.className = "click-number";
+      clickNumber.textContent = text;
+      clickNumber.style.left = "50%";
+      clickNumber.style.top = "50%";
+      cursorContainer.appendChild(clickNumber);
+      setTimeout(() => {
+        clickNumber.remove();
+      }, 1000);
+    }
+    
+    function createParticles() {
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement("div");
+        particle.style.position = "absolute";
+        particle.style.width = Math.random() * 8 + 1 + "px";
+        particle.style.height = particle.style.width;
+        particle.style.background = 
+          `rgba(${Math.floor(Math.random() * 255)}, ${
+            Math.floor(Math.random() * 255)
+          }, 255, ${Math.random() * 0.2})`;
+        particle.style.borderRadius = "50%";
+        particle.style.top = Math.random() * 100 + "%";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.opacity = Math.random();
+        particle.style.animation = `floating ${
+          Math.random() * 5 + 2
+        }s linear infinite alternate`;
+        particles.appendChild(particle);
+      }
+    }
+    
+    loginBtn.addEventListener("click", () => {
+      window.location.href = "../login?redirect=/click";
+    });
+    
+    createParticles();
+    startAutoClick();
+  </script>
+</body>
+</html>

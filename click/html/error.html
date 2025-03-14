@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>클릭왕 오류</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* 상단 광고 때문에 center -> flex-start 로 변경 */
+      flex-direction: column;
+      padding: 1rem 0.5rem;
+    }
+
+    /* 상단 광고를 화면에 고정 */
+    .ad-container-top {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      padding: 0.3rem 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 하단 광고를 화면에 고정 */
+    .ad-container-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      padding: 0.3rem 0;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+    
+    h1 span {
+      color: #ff4a4a;
+    }
+    
+    /* 메인 컨텐츠: 상단 광고와 겹치지 않도록 margin-top */
+    .main-content {
+      margin-top: 80px; /* 상단 광고 높이에 맞게 조정 */
+      margin-bottom: 120px; /* 하단 광고에 안 가려지도록 이미 주어진 값 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .error-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      color: #ff4a4a;
+    }
+    
+    .error-message {
+      font-size: 1.5rem;
+      color: #ff4a4a;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    
+    .btn-home {
+      background-color: #ff4a4a;
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin-top: 1rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-home:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(255, 74, 74, 0.3);
+    }
+    
+    .ripple-effect {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-color: rgba(255, 74, 74, 0.2);
+      animation: ripple 2s infinite;
+    }
+    
+    @keyframes ripple {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+    
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    @keyframes floating {
+      0% {
+        transform: translateY(0px);
+      }
+      100% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 0.5rem 0.5rem;
+        align-items: flex-start; /* 중앙 정렬 시 광고와 겹칠 수 있어 */
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .error-container {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 1rem;
+      }
+      .error-message {
+        font-size: 1.3rem;
+      }
+      .main-content {
+        margin-top: 70px;  /* 모바일에서 조금 줄여도 됨 */
+        margin-bottom: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 광고 영역 (고정) -->
+  <!-- <div class="ad-container-top">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-ai5ankXFQS2SvQNf"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 메인 에러 컨텐츠 -->
+  <div class="main-content">
+    <h1><span>에러</span> 발생</h1>
+    <p class="subtitle">문제가 발생했어요!</p>
+    
+    <div class="error-container">
+      <div class="ripple-effect"></div>
+      <div class="error-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+          <path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="error-message">
+      <?= htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8') ?>
+    </div>
+    
+    <a href="click/" class="btn-home">홈으로 돌아가기</a>
+  </div>
+  
+  <!-- 하단 광고 (고정) -->
+  <!-- <div class="ad-container-bottom">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-10v3dFp7XcCQi4bJ"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 파티클 배경 -->
+  <div class="particles"></div>
+
+  <script>
+    const particles = document.querySelector(".particles");
+    
+    // 배경 파티클 생성
+    function createParticles() {
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement("div");
+        particle.style.position = "absolute";
+        particle.style.width = Math.random() * 8 + 1 + "px";
+        particle.style.height = particle.style.width;
+        // 랜덤한 붉은 톤 컬러
+        particle.style.background = `rgba(255, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 100)}, ${Math.random() * 0.2})`;
+        particle.style.borderRadius = "50%";
+        particle.style.top = Math.random() * 100 + "%";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.opacity = Math.random();
+        particle.style.animation = `floating ${Math.random() * 5 + 2}s linear infinite alternate`;
+        particles.appendChild(particle);
+      }
+    }
+    
+    createParticles();
+  </script>
+</body>
+</html>

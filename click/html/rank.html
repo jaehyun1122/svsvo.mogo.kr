@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>클릭왕 랭킹</title>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0;
+    }
+    
+    /* 헤더 영역 */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px 20px;
+      text-align: center;
+      position: relative;
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .logout-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .crown-icon {
+      display: inline-block;
+      margin-right: 10px;
+      font-size: 1.8rem;
+    }
+    .main-title {
+      font-size: 1.8rem;
+      margin: 15px 0 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .sub-title {
+      font-size: 1rem;
+      margin: 10px 0 0;
+      opacity: 0.8;
+      font-weight: 300;
+    }
+    
+    /* 상단 광고 컨테이너 */
+    .ad-container-top {
+      display: flex;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    .ranking-wrapper {
+      background-color: white;
+      border-radius: 8px;
+      margin: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    .ranking-tabs {
+      display: grid;
+      grid-template-columns: 0.7fr 1.5fr 1fr 1.5fr;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      background-color: #f8f9fa;
+      font-weight: 600;
+      column-gap: 15px;
+    }
+    .ranking-tab {
+      padding: 5px;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    .ranking-tab:first-child {
+      text-align: center;
+    }
+    .ranking-tab:nth-child(2) {
+      text-align: left;
+    }
+    .ranking-tab:nth-child(3) {
+      text-align: center;
+    }
+    .ranking-tab:last-child {
+      text-align: right;
+    }
+    .ranking-item {
+      display: grid;
+      grid-template-columns: 0.7fr 1.5fr 1fr 1.5fr;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f3f5;
+      transition: background-color 0.2s;
+      column-gap: 15px;
+    }
+    .ranking-item:hover {
+      background-color: #f8f9fa;
+    }
+    .ranking-item.me {
+      background-color: rgba(102, 126, 234, 0.05);
+    }
+    .rank {
+      text-align: center;
+    }
+    .admin-badge {
+      background-color: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      margin-left: 5px;
+    }
+    .username {
+      text-align: left;
+      display: flex;
+      align-items: center;
+    }
+    .clicks {
+      text-align: center;
+      font-weight: 500;
+    }
+    .timestamp {
+      text-align: right;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    .rank-number {
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #f1f3f5;
+      margin-right: 5px;
+    }
+    .top-rank {
+      width: 35px;
+      height: 35px;
+      color: white;
+    }
+    .rank-1 {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      box-shadow: 0 3px 5px rgba(255, 215, 0, 0.3);
+    }
+    .rank-2 {
+      background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+      box-shadow: 0 3px 5px rgba(192, 192, 192, 0.3);
+    }
+    .rank-3 {
+      background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+      box-shadow: 0 3px 5px rgba(205, 127, 50, 0.3);
+    }
+
+    /* 데이터 없을 때 메세지 */
+    .no-data-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+      font-size: 1.1rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .no-data-message i {
+      margin-right: 8px; 
+      font-size: 1.2rem;
+    }
+
+    /* footer를 일반 배치하되, 광고에 가려지지 않도록 margin-bottom 설정 */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      border-top: 1px solid #eee;
+      margin-bottom: 80px;  /* <== 광고가 fixed로 깔리므로 넉넉히 확보 */
+    }
+    .back-to-game {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s ease;
+    }
+    .back-to-game i {
+      font-size: 1.1rem;
+    }
+    .back-to-game:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* 하단 광고 (고정) */
+    .ad-container-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.3rem 0;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 모바일 대응 */
+    @media (max-width: 768px) {
+      .ranking-wrapper {
+        margin: 10px;
+      }
+      .ranking-tabs {
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+      .ranking-item {
+        padding: 10px;
+      }
+      .timestamp {
+        font-size: 0.8rem;
+      }
+      .admin-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+      .main-title {
+        font-size: 1.6rem;
+      }
+      .footer {
+        margin-bottom: 90px; /* 모바일에서도 조금 더 확보 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-content">
+      <a href="../logout" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> 로그아웃
+      </a>
+      <h1 class="main-title">
+        <i class="fas fa-crown crown-icon"></i> 클릭왕 랭킹
+      </h1>
+      <p class="sub-title">상위 100명만 표시됩니다</p>
+    </div>
+  </div>
+
+  <!-- 상단 광고 -->
+  <!-- <div class="ad-container-top">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-ai5ankXFQS2SvQNf"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 메인 컨테이너 -->
+  <div class="container">
+    <div class="ranking-wrapper">
+      <div class="ranking-tabs">
+        <div class="ranking-tab">순위</div>
+        <div class="ranking-tab">닉네임</div>
+        <div class="ranking-tab">클릭 수</div>
+        <div class="ranking-tab">업데이트 시간</div>
+      </div>
+      
+      <?php if (isset($rankings) && is_array($rankings) && count($rankings) > 0): ?>
+        <?php foreach ($rankings as $item): ?>
+          <div class="ranking-item<?= $item['me'] ? ' me' : '' ?>">
+            <div class="rank">
+              <?php if ($item['rank'] <= 3): ?>
+                <span class="rank-number top-rank rank-<?= $item['rank'] ?>"><?= $item['rank'] ?></span>
+              <?php else: ?>
+                <span class="rank-number"><?= htmlspecialchars($item['rank'], ENT_QUOTES, 'UTF-8') ?></span>
+              <?php endif; ?>
+            </div>
+            <div class="username">
+              <?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>
+              <?php if ($item['me']): ?>
+                <span class="admin-badge"><i class="fas fa-user"></i> 나</span>
+              <?php endif; ?>
+            </div>
+            <div class="clicks">
+              <i class="fas fa-mouse-pointer" style="margin-right: 5px; color: #667eea;"></i>
+              <?= number_format(htmlspecialchars($item['count'], ENT_QUOTES, 'UTF-8')) ?>
+            </div>
+            <div class="timestamp">
+              <i class="far fa-clock" style="margin-right: 5px;"></i>
+              <?= htmlspecialchars($item['date'], ENT_QUOTES, 'UTF-8') ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <div class="no-data-message">
+          <i class="fas fa-info-circle"></i>
+          랭킹 데이터가 없습니다.
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+  
+  <!-- footer에 margin-bottom을 주어, 버튼이 광고에 가려지지 않게 함 -->
+  <div class="footer">
+    <a href="/click" class="back-to-game">
+      <i class="fas fa-gamepad"></i> 클릭 게임으로 돌아가기
+    </a>
+  </div>
+
+  <!-- 하단 광고 (고정) -->
+  <!-- <div class="ad-container-bottom">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-10v3dFp7XcCQi4bJ"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>클릭왕 게임</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 화면 전체를 최소 100vh 사용하되, 내용 많으면 자동 확장 */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      /* 스크롤이 필요하다면 자동으로 생기도록 */
+    }
+
+    /* 상단 헤더 */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1rem;
+      color: #333;
+      background-color: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .header-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    header a {
+      background-color: #4a6cff;
+      color: white;
+      text-decoration: none;
+      padding: 0.6rem 1rem;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .ranking-button {
+      background-color: #ff6b4a !important;
+    }
+
+    /* 상단 광고 컨테이너 (위쪽에만 배치) */
+    .ad-container-top {
+      display: flex;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    /* 
+      하단 광고를 화면 맨 아래에 고정 
+      => width: 100%; bottom: 0; 
+    */
+    .ad-container-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 999; /* 내용 위로 올라오도록 */
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.3rem 0;
+    }
+
+    /* 
+      메인 컨테이너: 
+      하단 광고가 고정이므로, 아래쪽 공간 확보 (padding-bottom) 
+    */
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 auto;
+      padding: 1.5rem 0 3.5rem; /* 아래쪽 3.5rem 정도 여유(광고 높이) */
+    }
+
+    /* 제목, 부제목 사이 간격 넉넉히 */
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.7rem;
+      color: #333;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 span {
+      color: #4a6cff;
+    }
+    h1 i {
+      color: #4a6cff;
+      margin-right: 0.5rem;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 1.4rem;
+      text-align: center;
+    }
+
+    /* 횟수 대시보드 (네모 형태) */
+    .stats-container {
+      display: flex;
+      width: 100%;
+      justify-content: space-around;
+      margin-bottom: 1.5rem; 
+      gap: 0.5rem; /* 카드 사이 약간의 간격 */
+      padding: 0 0.5rem; /* 좌우 여백 */
+    }
+    .stat-card {
+      flex: 1; /* 카드들이 균등분할되게 */
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px; /* 약간만 둥근 사각형 */
+      padding: 0.8rem;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stat-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+      color: #4a6cff;
+    }
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #4a6cff;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 0.3rem;
+    }
+
+    /* 클릭 버튼 */
+    #clickArea {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      background: linear-gradient(145deg, #5a7cff, #3a5cee);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      touch-action: manipulation;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(74, 108, 255, 0.4), inset 0 1px 8px rgba(255, 255, 255, 0.3);
+      margin-bottom: 1rem; /* 버튼과 아래 "업데이트 중" 사이 간격 */
+    }
+    #clickArea:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 8px rgba(74, 108, 255, 0.3);
+    }
+    #clickArea i {
+      margin-right: 0.3rem;
+      font-size: 1.3rem;
+    }
+
+    /* 업데이트(버퍼링) 표시 */
+    #buffering {
+      display: none;
+      margin-bottom: 1rem; /* 광고에 살짝 가려지지 않도록 약간 여유 */
+      font-size: 0.9rem;
+      color: #4a6cff;
+      padding: 0.3rem 0.8rem;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    /* 클릭 리플 & +1 애니메이션 */
+    .click-ripple {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: ripple 1s ease-out;
+      pointer-events: none;
+    }
+    .click-number {
+      position: absolute;
+      color: white;
+      font-weight: bold;
+      font-size: 1.3rem;
+      pointer-events: none;
+      animation: floating 1s ease-out;
+    }
+    @keyframes ripple {
+      0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+      }
+      100% {
+        width: 160px;
+        height: 160px;
+        opacity: 0;
+      }
+    }
+    @keyframes floating {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -40px);
+      }
+    }
+
+    /* 파티클 배경 */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    @media (max-height: 600px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+      .stats-container {
+        margin-bottom: 1rem;
+      }
+      #clickArea {
+        width: 140px;
+        height: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <span id="welcomeMessage" style="font-weight: bold;">
+      <i class="fas fa-user-circle"></i>
+      <span id="userName"></span>
+    </span>
+    <div class="header-buttons">
+      <a href="/click/rank" class="ranking-button">
+        <i class="fas fa-trophy"></i> 랭킹
+      </a>
+      <a href="../logout">
+        <i class="fas fa-sign-out-alt"></i> 로그아웃
+      </a>
+    </div>
+  </header>
+
+  <!-- 상단 광고 -->
+  <!-- <div class="ad-container-top">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-ai5ankXFQS2SvQNf"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 메인 컨테이너 (화면 가운데) -->
+  <div class="game-container">
+    <h1>
+      <i class="fas fa-crown"></i> <span>클릭</span>왕
+    </h1>
+    <p class="subtitle">클릭하고 1등에 도전하세요!</p>
+
+    <!-- 네모난 대시보드 -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-globe"></i></div>
+        <div class="stat-value" id="totalClickCount">0</div>
+        <div class="stat-label">전체 클릭</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user"></i></div>
+        <div class="stat-value" id="userClickCount">0</div>
+        <div class="stat-label">내 전체 클릭</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+        <div class="stat-value" id="sessionClickCount">0</div>
+        <div class="stat-label">연속 클릭</div>
+      </div>
+    </div>
+
+    <!-- 클릭 버튼 & 업데이트 표시 -->
+    <div id="clickArea">
+      <i class="fas fa-hand-pointer"></i> 클릭!
+    </div>
+
+    <div id="buffering">
+      <i class="fas fa-sync-alt fa-spin"></i> 업데이트 중...
+    </div>
+  </div>
+
+  <!-- 하단 광고 (고정) -->
+  <!-- <div class="ad-container-bottom">
+    <ins class="kakao_ad_area" style="display:none;"
+         data-ad-unit="DAN-10v3dFp7XcCQi4bJ"
+         data-ad-width="320"
+         data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div> -->
+
+  <!-- 파티클 배경 -->
+  <div class="particles"></div>
+
+  <script>
+    // 서버에서 전달받은 유저 정보
+    var info = <?= json_encode($info) ?>;
+    document.getElementById("userName").textContent = info.name + " 님 환영합니다!";
+    document.getElementById("totalClickCount").textContent = info.click_total;
+    document.getElementById("userClickCount").textContent = info.click_user_total;
+
+    var sessionClicks = 0;
+    var timer = null;
+    var isUpdating = false;
+
+    // 업데이트 중 표시 (버퍼링 UI)
+    function showBuffering(show) {
+      var bufferingEl = document.getElementById("buffering");
+      bufferingEl.style.display = show ? "flex" : "none";
+      // 필요하면 transform으로 살짝 띄우는 효과 줄 수도 있음
+      bufferingEl.style.transform = show ? "translateY(-10px)" : "translateY(0)";
+    }
+
+    // 서버에 클릭 횟수 업데이트
+    function sendUpdate() {
+      if (sessionClicks > 0 && !isUpdating) {
+        isUpdating = true;
+        showBuffering(true);
+
+        var payload = {
+          count: sessionClicks,
+          key_update: info.key_update,
+          csrf_token: info.csrf_token
+        };
+
+        fetch("/click/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "1" && data.result) {
+            document.getElementById("totalClickCount").textContent = data.result.click_total;
+            document.getElementById("userClickCount").textContent = data.result.click_user_total;
+          }
+        })
+        .catch(error => {})
+        .finally(() => {
+          sessionClicks = 0;
+          document.getElementById("sessionClickCount").textContent = "0";
+          isUpdating = false;
+          showBuffering(false);
+        });
+      }
+    }
+
+    // 클릭/터치 이벤트 핸들러
+    function handleClick() {
+      sessionClicks++;
+      document.getElementById("sessionClickCount").textContent = sessionClicks;
+
+      createRipple();
+      createClickNumber("+1");
+
+      if (sessionClicks >= 500) {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        sendUpdate();
+      } else {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(sendUpdate, 1000);
+      }
+    }
+
+    // 클릭 파장 이펙트
+    function createRipple() {
+      var ripple = document.createElement("div");
+      ripple.className = "click-ripple";
+      document.getElementById("clickArea").appendChild(ripple);
+      setTimeout(() => { ripple.remove(); }, 1000);
+    }
+
+    // "+1" 떠오르는 효과
+    function createClickNumber(text) {
+      var clickNumber = document.createElement("div");
+      clickNumber.className = "click-number";
+      clickNumber.textContent = text;
+      var area = document.getElementById("clickArea");
+      var areaRect = area.getBoundingClientRect();
+      var randomX = Math.random() * (areaRect.width - 20) + 10;
+      var randomY = Math.random() * (areaRect.height - 20) + 10;
+      clickNumber.style.left = randomX + "px";
+      clickNumber.style.top = randomY + "px";
+      area.appendChild(clickNumber);
+      setTimeout(() => { clickNumber.remove(); }, 1000);
+    }
+
+    // 파티클 배경
+    function createParticles() {
+      var particles = document.querySelector(".particles");
+      for (var i = 0; i < 20; i++) {
+        var particle = document.createElement("div");
+        particle.style.position = "absolute";
+        var size = Math.random() * 6 + 1;
+        particle.style.width = size + "px";
+        particle.style.height = size + "px";
+        particle.style.background = 
+          "rgba(" + Math.floor(Math.random() * 255) + "," + 
+                   Math.floor(Math.random() * 255) + ",255," + 
+                   (Math.random() * 0.2) + ")";
+        particle.style.borderRadius = "50%";
+        particle.style.top = Math.random() * 100 + "%";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.opacity = Math.random();
+        particle.style.animation = 
+          "floating " + (Math.random() * 5 + 2) + "s linear infinite alternate";
+        particles.appendChild(particle);
+      }
+    }
+
+    createParticles();
+    var clickArea = document.getElementById("clickArea");
+    clickArea.addEventListener("click", handleClick);
+    clickArea.addEventListener("touchstart", function(e) {
+      e.preventDefault();
+      handleClick();
+    });
+  </script>
+</body>
+</html>
